@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "firstrun.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ifaddrs.h>
@@ -17,12 +19,19 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    //user interface
     ui->setupUi(this);
 
+    //initialisation for a fist run
+    firstRun::run(); // test if it's the fist time, if not continue, else configuration popup pop
+
+    //initialisation of timer to update each 10sec
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    timer->start(5000);
+    timer->start(10000);
 
+
+    //init connection progressbar
     QString style = "QProgressBar{background-color:red}";
     QString text="initialisation";
     ui->progressBar_server->setStyleSheet(style);
@@ -30,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->progressBar_server->setFormat(text);
     ui->progressBar_internet->setFormat(text);
 
+    //firstUpdate
     update();
 }
 
@@ -58,9 +68,8 @@ QString getIPAddress(){
     return ipAddress;
 }
 
-void MainWindow::update() //update every 5sec
+void MainWindow::update() //update every 10sec
 {
-    qDebug() << __func__;
     ui->lineEdit_ip->setText(getIPAddress());
     ui->lineEdit_temp->setText(getTemperature());
     QString text="Disconnected";
@@ -103,13 +112,11 @@ QString getTemperature(){
     double T;
     temperatureFile = fopen ("/sys/class/thermal/thermal_zone0/temp", "r");
     if (temperatureFile == NULL)
-      ; //print some message
+    return "error"  ; //print some message
     fscanf (temperatureFile, "%lf", &T);
     T /= 1000;
     return QString::number(T).append("°C");
 }
-
-
 
 MainWindow::~MainWindow()
 {
