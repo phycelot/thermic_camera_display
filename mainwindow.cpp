@@ -99,10 +99,14 @@ void MainWindow::update() //update every 5sec
 }
 
 QString getTemperature(){
-    QString s="";
-    s=system("/opt/vc/bin/vcgencmd measure_temp");
-    s.remove(0,4);
-    return s;
+    FILE *temperatureFile;
+    double T;
+    temperatureFile = fopen ("/sys/class/thermal/thermal_zone0/temp", "r");
+    if (temperatureFile == NULL)
+      ; //print some message
+    fscanf (temperatureFile, "%lf", &T);
+    T /= 1000;
+    return QString::number(T).append("°C");
 }
 
 
