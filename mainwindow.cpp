@@ -9,6 +9,29 @@
 #include <arpa/inet.h>
 
 #include <QDebug>
+#include <QTimer>
+#include <QtWidgets>
+#include <QtNetwork>
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+    timer->start(5000);
+
+    QString style = "QProgressBar{background-color:red}";
+    QString text="initialisation";
+    ui->progressBar_server->setStyleSheet(style);
+    ui->progressBar_internet->setStyleSheet(style);
+    ui->progressBar_server->setFormat(text);
+    ui->progressBar_internet->setFormat(text);
+
+    update();
+}
 
 QString getIPAddress(){
     QString ipAddress="Unable to get IP Address";
@@ -35,21 +58,54 @@ QString getIPAddress(){
     return ipAddress;
 }
 
+void MainWindow::update() //update every 5sec
+{
+    qDebug() << __func__;
+    ui->lineEdit_ip->setText(getIPAddress());
+    ui->lineEdit_temp->setText(getTemperature());
+    QString text="Disconnected";
+    int value=0;
+    QNetworkAccessManager nam;
+    QNetworkRequest req(QUrl("http://www.google.com"));
+    QNetworkReply *reply = nam.get(req);
+    QEventLoop loop;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
+    if(reply->bytesAvailable())
+    {
+        text="Connected";
+        value=1;
+    }
+    ui->progressBar_internet->setFormat(text);
+    ui->progressBar_internet->setValue(value);
+    QNetworkAccessManager nam2;
+    QNetworkRequest req2(QUrl("http://www.ehaou.llsebfn/")); //change with server ip
+    QNetworkReply *reply2 = nam2.get(req2);
+    QEventLoop loop2;
+    connect(reply2, SIGNAL(finished()), &loop2, SLOT(quit()));
+    loop2.exec();
+    if(reply2->bytesAvailable())
+    {
+        text="Connected";
+        value=1;
+    }
+    else
+    {
+        text="Disconnected";
+        value=0;
+    }
+    ui->progressBar_server->setFormat(text);
+    ui->progressBar_server->setValue(value);
+}
+
 QString getTemperature(){
     QString s="";
     s=system("/opt/vc/bin/vcgencmd measure_temp");
-    s.append("°C");
+    s.remove(0,4);
     return s;
 }
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
-    ui->lineEdit_ip->setText(getIPAddress());
-    ui->lineEdit_temp->setText(getTemperature());
-}
+
 
 MainWindow::~MainWindow()
 {

@@ -15,9 +15,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void update();
+
 private:
     Ui::MainWindow *ui;
 };
+
 
 QString getIPAddress();
 QString getTemperature();
