@@ -22,6 +22,15 @@ MainWindow::MainWindow(QWidget *parent) :
     //user interface
     ui->setupUi(this);
 
+    //setup layout_camera
+    label_camera = new QLabel;
+    label_camera->installEventFilter(this);
+    label_camera->setAutoFillBackground(true);
+    ui->gridLayout_global->addWidget(label_camera,0,0);
+    connect(this,SIGNAL(doubleClicked()),SLOT(onDoubleClicked()));
+    label_camera->setText("emplacement camera");
+    label_camera->setStyleSheet("QLabel { background-color: rgb(255, 224, 179);}");
+
     //initialisation for a fist run
     firstRun::run(); // test if it's the fist time, if not continue, else configuration popup pop
 
@@ -54,6 +63,47 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //test
 //    createAlert();
+}
+
+bool MainWindow::eventFilter(QObject *target, QEvent *event)
+{
+    if (target == label_camera)
+        {
+        if (event->type() == QEvent::MouseButtonDblClick)
+            {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+            if (mouseEvent->button() == Qt::LeftButton )
+                {
+                emit doubleClicked();
+                return QMainWindow::eventFilter(target,event);
+                }
+            }
+        }
+    return QMainWindow::eventFilter(target,event);
+}
+
+
+
+void MainWindow::onDoubleClicked()
+{
+    if ((label_camera->windowState() == Qt::WindowFullScreen) && isMaximized)
+    {
+        qDebug("Parent");
+        label_camera->setParent(this);
+        ui->gridLayout_global->addWidget(label_camera,0,0);
+        isMaximized = false;
+
+    } else
+    {
+        qDebug("Maximize");
+        isMaximized = true;
+        label_camera->setParent(NULL);
+        label_camera->setWindowFlags(label_camera->windowFlags() | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
+        label_camera->setWindowState(label_camera->windowState() | Qt::WindowFullScreen);
+        label_camera->show();
+
+    }
+
 }
 
 void MainWindow::createAlert()
@@ -90,14 +140,14 @@ void MainWindow::mousePressEvent(QMouseEvent *e){
     qInfo() << __func__;
     int x = e->x();
     int y = e->y();
-    int x1= ui->label_camera->pos().x();
-    int x2=ui->label_camera->pos().x()+ui->label_camera->geometry().width();
-    int y1= ui->label_camera->pos().y();
-    int y2=ui->label_camera->pos().y()+ui->label_camera->geometry().height();
+    int x1= label_camera->pos().x();
+    int x2=label_camera->pos().x()+label_camera->geometry().width();
+    int y1= label_camera->pos().y();
+    int y2=label_camera->pos().y()+label_camera->geometry().height();
     if(x1<=x && x<=x2 && y1<=y && y<=y2)
     {
-        int xin=x-ui->label_camera->pos().x();
-        int yin=y-ui->label_camera->pos().y();
+        int xin=x-label_camera->pos().x();
+        int yin=y-label_camera->pos().y();
         qInfo() << "x=" << xin << ", y=" << yin;
         ui->tabWidget_temp_detail->setCurrentIndex(0);
 
@@ -106,15 +156,15 @@ void MainWindow::mousePressEvent(QMouseEvent *e){
     {
         stopAlert();
     }
-    if ((ui->label_camera->windowState() == Qt::WindowFullScreen) && isMaximized)
-    {
-    qDebug("Parent");
-    ui->label_camera->setParent(this);
+//    if ((label_camera->windowState() == Qt::WindowFullScreen) && isMaximized)
+//    {
+//    qDebug("Parent");
+//    label_camera->setParent(this);
 
-//    ui->label_camera->;
-    ui->gridLayout_global->addWidget(ui->label_camera,0,0);
-    isMaximized = false;
-    }
+////    label_camera->;
+//    ui->gridLayout_global->addWidget(label_camera,0,0);
+//    isMaximized = false;
+//    }
 }
 
 void MainWindow::setCameraFullScreen()
@@ -123,10 +173,10 @@ void MainWindow::setCameraFullScreen()
     if(!isMaximized)
     {
         isMaximized = true;
-        ui->label_camera->setParent(NULL);
-        ui->label_camera->setWindowFlags( ui->label_camera->windowFlags() | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
-        ui->label_camera->setWindowState( ui->label_camera->windowState() | Qt::WindowFullScreen);
-        ui->label_camera->showFullScreen();
+        label_camera->setParent(NULL);
+        label_camera->setWindowFlags( label_camera->windowFlags() | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
+        label_camera->setWindowState( label_camera->windowState() | Qt::WindowFullScreen);
+        label_camera->showFullScreen();
     }
 
 }

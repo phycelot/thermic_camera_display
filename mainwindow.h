@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QTimer>
-
+#include <QLabel>
 
 namespace Ui {
 class MainWindow;
@@ -17,11 +17,14 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void mousePressEvent(QMouseEvent *e);
+    bool eventFilter(QObject *target, QEvent *event);
+    QLabel *label_camera;
 
 public slots:
     void update();
     void clignAlert();
     void setCameraFullScreen();
+    void onDoubleClicked();
 
 private:
     Ui::MainWindow *ui;
@@ -31,6 +34,9 @@ private:
     bool clignUpAlert = false;
     bool isMaximized=false;
     QTimer *alertTimer;
+
+signals:
+    void doubleClicked();
 };
 
 
