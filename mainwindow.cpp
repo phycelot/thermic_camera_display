@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(doubleClicked()),SLOT(onDoubleClicked()));
     label_camera->setText("emplacement camera");
     label_camera->setStyleSheet("QLabel { background-color: rgb(255, 224, 179);}");
+//    label_camera->setCursor();
 
     //initialisation for a fist run
     firstRun::run(); // test if it's the fist time, if not continue, else configuration popup pop
@@ -58,11 +59,11 @@ MainWindow::MainWindow(QWidget *parent) :
     update();
 
     //style initialisation
-    this->setStyleSheet("QMainWindow { background-color: rgb(231, 231, 228);}");
+    this->setStyleSheet("QMainWindow { background-color: rgb(231, 231, 228);} QWidget { background-color: rgb(231, 231, 228);}");
     this->showFullScreen();
 
     //test
-//    createAlert();
+    createAlert();
 }
 
 bool MainWindow::eventFilter(QObject *target, QEvent *event)
@@ -130,11 +131,11 @@ void MainWindow::clignAlert()
 //    qInfo() << __func__;
     if(!clignUpAlert)
     {
-        this->setStyleSheet("QMainWindow { background-color: rgb(255, 0 , 0);}");
+        this->setStyleSheet("QMainWindow { background-color: rgb(255, 0 , 0);} QWidget { background-color: rgb(255, 0 , 0);}");
     }
     else
     {
-        this->setStyleSheet("QMainWindow { background-color: rgb(231, 231, 228);}");
+        this->setStyleSheet("QMainWindow { background-color: rgb(231, 231, 228);} QWidget { background-color: rgb(231, 231, 228);}");
     }
     clignUpAlert= !clignUpAlert;
 
@@ -144,6 +145,7 @@ void MainWindow::stopAlert()
 {
     //wip add this info to log
     alertTimer->stop();
+    this->setStyleSheet("QMainWindow { background-color: rgb(231, 231, 228);} QWidget { background-color: rgb(231, 231, 228);}");
     clignUpAlert=false;
     isAlert=false;
 }
