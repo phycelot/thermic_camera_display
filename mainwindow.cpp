@@ -80,7 +80,13 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
 //                return QMainWindow::eventFilter(target,event);
 //                }
             }
+        if(isMaximized && event->type() == QEvent::MouseButtonPress)
+            {
+                emit doubleClicked();
+                return QMainWindow::eventFilter(target,event);
+            }
         }
+
     return QMainWindow::eventFilter(target,event);
 }
 
