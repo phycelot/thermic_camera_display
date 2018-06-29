@@ -30,6 +30,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->start(10000);
 
+    //connect
+    QObject::connect(ui->pushButton_fullscreen,SIGNAL(clicked()),this,SLOT(setCameraFullScreen()));
+
+    //initialisation alert timer
+    alertTimer = new QTimer(this);
+    connect(alertTimer , SIGNAL(timeout()), this, SLOT(clignAlert()));
 
     //init connection progressbar
     QString style = "QProgressBar{background-color:red}";
@@ -41,31 +47,88 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //firstUpdate
     update();
+
+    //style initialisation
+    this->setStyleSheet("QMainWindow { background-color: rgb(231, 231, 228);}");
+    this->showFullScreen();
+
+    //test
+//    createAlert();
 }
 
-QString getIPAddress(){
-    QString ipAddress="Unable to get IP Address";
-    struct ifaddrs *interfaces = NULL;
-    struct ifaddrs *temp_addr = NULL;
-    int success = 0;
-    // retrieve the current interfaces - returns 0 on success
-    success = getifaddrs(&interfaces);
-    if (success == 0) {
-        // Loop through linked list of interfaces
-        temp_addr = interfaces;
-        while(temp_addr != NULL) {
-            if(temp_addr->ifa_addr->sa_family == AF_INET) {
-                // Check if interface is en0 which is the wifi connection on the iPhone
-                if(strcmp(temp_addr->ifa_name, "en0")){
-                    ipAddress=inet_ntoa(((struct sockaddr_in*)temp_addr->ifa_addr)->sin_addr);
-                }
-            }
-            temp_addr = temp_addr->ifa_next;
-        }
+void MainWindow::createAlert()
+{
+    //wip send alert message and log
+    alertTimer->start(100);
+    isAlert=true;
+}
+
+void MainWindow::clignAlert()
+{
+//    qInfo() << __func__;
+    if(!clignUpAlert)
+    {
+        this->setStyleSheet("QMainWindow { background-color: rgb(255, 0 , 0);}");
     }
-    // Free memory
-    freeifaddrs(interfaces);
-    return ipAddress;
+    else
+    {
+        this->setStyleSheet("QMainWindow { background-color: rgb(231, 231, 228);}");
+    }
+    clignUpAlert= !clignUpAlert;
+
+}
+
+void MainWindow::stopAlert()
+{
+    //wip add this info to log
+    alertTimer->stop();
+    clignUpAlert=false;
+    isAlert=false;
+}
+
+void MainWindow::mousePressEvent(QMouseEvent *e){
+    qInfo() << __func__;
+    int x = e->x();
+    int y = e->y();
+    int x1= ui->label_camera->pos().x();
+    int x2=ui->label_camera->pos().x()+ui->label_camera->geometry().width();
+    int y1= ui->label_camera->pos().y();
+    int y2=ui->label_camera->pos().y()+ui->label_camera->geometry().height();
+    if(x1<=x && x<=x2 && y1<=y && y<=y2)
+    {
+        int xin=x-ui->label_camera->pos().x();
+        int yin=y-ui->label_camera->pos().y();
+        qInfo() << "x=" << xin << ", y=" << yin;
+        ui->tabWidget_temp_detail->setCurrentIndex(0);
+
+    }
+    if(isAlert)
+    {
+        stopAlert();
+    }
+    if ((ui->label_camera->windowState() == Qt::WindowFullScreen) && isMaximized)
+    {
+    qDebug("Parent");
+    ui->label_camera->setParent(this);
+
+//    ui->label_camera->;
+    ui->gridLayout_global->addWidget(ui->label_camera,0,0);
+    isMaximized = false;
+    }
+}
+
+void MainWindow::setCameraFullScreen()
+{
+    qInfo() << __func__;
+    if(!isMaximized)
+    {
+        isMaximized = true;
+        ui->label_camera->setParent(NULL);
+        ui->label_camera->setWindowFlags( ui->label_camera->windowFlags() | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
+        ui->label_camera->setWindowState( ui->label_camera->windowState() | Qt::WindowFullScreen);
+        ui->label_camera->showFullScreen();
+    }
+
 }
 
 void MainWindow::update() //update every 10sec
@@ -105,6 +168,31 @@ void MainWindow::update() //update every 10sec
     }
     ui->progressBar_server->setFormat(text);
     ui->progressBar_server->setValue(value);
+}
+
+QString getIPAddress(){
+    QString ipAddress="Unable to get IP Address";
+    struct ifaddrs *interfaces = NULL;
+    struct ifaddrs *temp_addr = NULL;
+    int success = 0;
+    // retrieve the current interfaces - returns 0 on success
+    success = getifaddrs(&interfaces);
+    if (success == 0) {
+        // Loop through linked list of interfaces
+        temp_addr = interfaces;
+        while(temp_addr != NULL) {
+            if(temp_addr->ifa_addr->sa_family == AF_INET) {
+                // Check if interface is en0 which is the wifi connection on the iPhone
+                if(strcmp(temp_addr->ifa_name, "en0")){
+                    ipAddress=inet_ntoa(((struct sockaddr_in*)temp_addr->ifa_addr)->sin_addr);
+                }
+            }
+            temp_addr = temp_addr->ifa_next;
+        }
+    }
+    // Free memory
+    freeifaddrs(interfaces);
+    return ipAddress;
 }
 
 QString getTemperature(){
