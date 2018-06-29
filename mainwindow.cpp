@@ -118,6 +118,10 @@ void MainWindow::createAlert()
 {
     //wip send alert message and log
     alertTimer->start(100);
+    if(isMaximized)
+        {
+            emit doubleClicked();
+        }
     isAlert=true;
 }
 
@@ -178,14 +182,7 @@ void MainWindow::mousePressEvent(QMouseEvent *e){
 void MainWindow::setCameraFullScreen()
 {
     qInfo() << __func__;
-    if(!isMaximized)
-    {
-        isMaximized = true;
-        label_camera->setParent(NULL);
-        label_camera->setWindowFlags( label_camera->windowFlags() | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
-        label_camera->setWindowState( label_camera->windowState() | Qt::WindowFullScreen);
-        label_camera->showFullScreen();
-    }
+    emit doubleClicked();
 
 }
 
