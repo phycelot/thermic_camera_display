@@ -71,12 +71,14 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
         {
         if (event->type() == QEvent::MouseButtonDblClick)
             {
-            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if (mouseEvent->button() == Qt::LeftButton )
-                {
-                emit doubleClicked();
-                return QMainWindow::eventFilter(target,event);
-                }
+            emit doubleClicked();
+            return QMainWindow::eventFilter(target,event);
+//            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+//            if (mouseEvent->button() == Qt::LeftButton )
+//                {
+//                //emit doubleClicked();
+//                return QMainWindow::eventFilter(target,event);
+//                }
             }
         }
     return QMainWindow::eventFilter(target,event);
