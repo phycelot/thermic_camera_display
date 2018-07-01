@@ -19,6 +19,8 @@ public:
     void mousePressEvent(QMouseEvent *e);
     bool eventFilter(QObject *target, QEvent *event);
     QLabel *label_camera;
+    QImage image;
+    void setImage(QImage image);
 
 public slots:
     void update();

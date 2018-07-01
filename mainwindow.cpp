@@ -15,6 +15,15 @@
 #include <QtWidgets>
 #include <QtNetwork>
 
+#define OPEN_CV 0
+#if OPEN_CV
+#include <cv.h>
+#include "opencv2/opencv.hpp"
+using namespace cv;
+#endif
+
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -30,7 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(doubleClicked()),SLOT(onDoubleClicked()));
     label_camera->setText("emplacement camera");
     label_camera->setStyleSheet("QLabel { background-color: rgb(255, 224, 179);}");
-//    label_camera->setCursor();
+    QSize s(240,320);
+    label_camera->resize(s);
 
     //initialisation for a fist run
     firstRun::run(); // test if it's the fist time, if not continue, else configuration popup pop
@@ -62,8 +72,65 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setStyleSheet("QMainWindow { background-color: rgb(231, 231, 228);} QWidget { background-color: rgb(231, 231, 228);}");
     this->showFullScreen();
 
+    //open cv
+#if OPEN_CV
+//    CvCapture *capture;
+//    IplImage *frame, *imgHSV;
+//    imgHSV = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U,3);
+//    capture = cvCaptureFromCAM(0);
+//    cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH,160);
+//    cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT,120);
+//    if(!capture){
+//        qWarning() << "Capture failure";
+//    }
+//    frame = cvQueryFrame(capture);
+//    if(!frame)
+//    {
+//        qWarning() << "frame failure";
+//    }
+//    cvCvtColor(frame, imgHSV, CV_BGR2HSV_FULL);
+//    cvConvertImage(frame,frame,CV_CVTIMG_SWAP_RB);
+
+//    cvReleaseImage(&imgHSV);
+//    cvReleaseCapture(&capture);
+
+
+    VideoCapture stream1(0);   //0 is the id of video device.0 if you have only one camera.
+
+    if (!stream1.isOpened()) { //check if video device has been initialised
+        qWarning() << "cannot open camera";
+    }
+    Mat cameraFrame;
+    stream1.read(cameraFrame);
+    image = Mat2QImage(stream1);
+
+    setImage(image);
+#endif
     //test
-    createAlert();
+    //createAlert();
+}
+
+#if OPEN_CV
+QImage Mat2QImage(cv::Mat const& src)
+{
+     cv::Mat temp(src.cols,src.rows,src.type()); // make the same cv::Mat
+     cvtColor(src, temp,CV_BGR2RGB); // cvtColor Makes a copt, that what i need
+     QImage dest= QImage((uchar*) temp.data, temp.cols, temp.rows, temp.step, QImage::Format_RGB888);
+     return dest;
+}
+#endif
+
+void MainWindow::setImage(QImage image)
+{
+#if 1
+    int tempWidth = label_camera->geometry().width();
+    int tempHeight = label_camera->geometry().height();
+#else
+    int tempWidth = 320;
+    int tempHeight = 240;
+#endif
+    QPixmap pix = QPixmap::fromImage(image.scaled(tempWidth, tempHeight));
+    label_camera->setPixmap(pix);
 }
 
 bool MainWindow::eventFilter(QObject *target, QEvent *event)
@@ -74,12 +141,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
             {
             emit doubleClicked();
             return QMainWindow::eventFilter(target,event);
-//            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-//            if (mouseEvent->button() == Qt::LeftButton )
-//                {
-//                //emit doubleClicked();
-//                return QMainWindow::eventFilter(target,event);
-//                }
             }
         if(isMaximized && event->type() == QEvent::MouseButtonPress)
             {
@@ -100,6 +161,7 @@ void MainWindow::onDoubleClicked()
         qDebug("Parent");
         label_camera->setParent(this);
         ui->gridLayout_global->addWidget(label_camera,0,0);
+        label_camera->resize(320,240);
         isMaximized = false;
 
     } else
@@ -118,7 +180,7 @@ void MainWindow::onDoubleClicked()
 void MainWindow::createAlert()
 {
     //wip send alert message and log
-    alertTimer->start(100);
+    alertTimer->start(500);
     if(isMaximized)
         {
             emit doubleClicked();
