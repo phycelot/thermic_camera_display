@@ -102,7 +102,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     Mat cameraFrame;
     stream1.read(cameraFrame);
-    image = Mat2QImage(cameraFrame);
+    //image = Mat2QImage(cameraFrame);
 
     setImage(image);
 #endif
