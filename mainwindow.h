@@ -21,6 +21,7 @@ public:
     QLabel *label_camera;
     QImage image;
     void setImage(QImage image);
+    QImage Mat2QImage(cv::Mat const& src);
 
 public slots:
     void update();
