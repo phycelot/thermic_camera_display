@@ -18,7 +18,9 @@
 #define OPEN_CV 1
 
 #include <cv.h>
-#include "opencv2/opencv.hpp"
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/videoio.hpp>
 using namespace cv;
 
 
@@ -102,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     Mat cameraFrame;
     stream1.read(cameraFrame);
-    //image = Mat2QImage(cameraFrame);
+    image = Mat2QImage(cameraFrame);
 
     setImage(image);
 #endif
