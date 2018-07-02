@@ -15,7 +15,7 @@
 #include <QtWidgets>
 #include <QtNetwork>
 
-#define OPEN_CV 0
+#define OPEN_CV 1
 
 #include <cv.h>
 #include "opencv2/opencv.hpp"
