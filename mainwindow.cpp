@@ -15,12 +15,12 @@
 #include <QtWidgets>
 #include <QtNetwork>
 
-#define OPEN_CV 1
-#if OPEN_CV
+#define OPEN_CV 0
+
 #include <cv.h>
 #include "opencv2/opencv.hpp"
 using namespace cv;
-#endif
+
 
 
 
