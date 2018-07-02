@@ -111,9 +111,9 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 #if OPEN_CV
-QImage MainWindow::Mat2QImage(cv::Mat const& src)
+QImage MainWindow::Mat2QImage(Mat const& src)
 {
-     cv::Mat temp(src.cols,src.rows,src.type()); // make the same cv::Mat
+     Mat temp(src.cols,src.rows,src.type()); // make the same cv::Mat
      cvtColor(src, temp,CV_BGR2RGB); // cvtColor Makes a copt, that what i need
      QImage dest= QImage((uchar*) temp.data, temp.cols, temp.rows, temp.step, QImage::Format_RGB888);
      return dest;
