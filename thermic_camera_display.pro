@@ -7,7 +7,7 @@
 QT       += core gui
 QT += network
 INCLUDEPATH += /usr/local/include/opencv
-LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -lz -lopencv_core -lopencv_imgproc
+LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -lz -lopencv_core -lopencv_imgproc -export-dynamic `pkg-config --cflags --libs gtk+-2.0`
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

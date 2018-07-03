@@ -19,8 +19,13 @@
 
 #include <cv.h>
 #include <opencv2/core.hpp>
+#include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/videoio.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/ocl.hpp>
+
 using namespace cv;
 
 
@@ -299,15 +304,6 @@ void MainWindow::mousePressEvent(QMouseEvent *e){
     {
         stopAlert();
     }
-//    if ((label_camera->windowState() == Qt::WindowFullScreen) && isMaximized)
-//    {
-//    qDebug("Parent");
-//    label_camera->setParent(this);
-
-////    label_camera->;
-//    ui->gridLayout_global->addWidget(label_camera,0,0);
-//    isMaximized = false;
-//    }
 }
 
 void MainWindow::setCameraFullScreen()
