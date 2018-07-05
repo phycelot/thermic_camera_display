@@ -5,6 +5,9 @@
 #include <QTimer>
 #include <QLabel>
 
+#define OPEN_CV 0
+
+#if OPEN_CV
 #include <cv.h>
 #include <opencv2/core.hpp>
 #include <opencv2/opencv.hpp>
@@ -13,6 +16,8 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/ocl.hpp>
+using namespace cv;
+#endif
 
 namespace Ui {
 class MainWindow;
@@ -30,7 +35,9 @@ public:
     QLabel *label_camera;
     QImage image;
     void setImage(QImage image);
+#if OPEN_CV
     QImage Mat2QImage(cv::Mat const& inMat);
+#endif
 
 public slots:
     void update();
