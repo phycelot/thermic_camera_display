@@ -4,10 +4,10 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui widgets
 QT += network
 INCLUDEPATH += -I /usr/include/opencv2 -Wall
-LIBS += -L/usr/lib -l:libopencv_core.so.3.1.0 -l:libopencv_videoio.so.3.1.0 -l:libopencv_imgproc.so.3.1.0 -l:libopencv_highgui.so.3.1.0
+LIBS += -L/usr/lib -l:libopencv_core.so.3.1.0 -l:libopencv_videoio.so.3.1.0 -l:libopencv_imgproc.so.3.1.0 -l:libopencv_highgui.so.3.1.0 -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

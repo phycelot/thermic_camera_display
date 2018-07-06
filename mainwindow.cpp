@@ -24,12 +24,6 @@
 #include <opencv2/core/ocl.hpp>
 using namespace cv;
 
-
-
-
-
-
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -56,8 +50,16 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->start(10000);
 
+
+    //camera fps timer
+    double fps=1.0;
+    QTimer *timerCam = new QTimer(this);
+    connect(timerCam, SIGNAL(timeout()), this, SLOT(updateCam()));
+    timerCam->start(1000/fps);
+
     //connect
     QObject::connect(ui->pushButton_fullscreen,SIGNAL(clicked()),this,SLOT(setCameraFullScreen()));
+    QObject::connect(ui->pushButton_switch_camera_mode,SIGNAL(clicked()),this,SLOT(switchDisplay()));
 
     //initialisation alert timer
     alertTimer = new QTimer(this);
@@ -79,29 +81,153 @@ MainWindow::MainWindow(QWidget *parent) :
     this->showFullScreen();
 
     //open cv
-    qInfo() << "try video capture";
-    VideoCapture stream1;   //0 is the id of video device.0 if you have only one camera.
-    stream1.open(0);
-    qInfo() << "end init video capture";
+    qInfo() << "try video capture 0";
+    displayCam();
+    displayId=1;
+    qInfo() << "try video capture 1";
+    displayCam();
+    displayId=0;
 
-    if (!stream1.isOpened()) { //check if video device has been initialised
-        qWarning() << "cannot open camera";
-    }
-    Mat cameraFrame;
-    stream1.read(cameraFrame);
-    image = Mat2QImage(cameraFrame);
-
-    setImage(image);
     //test
     //createAlert();
+
+    //init config
+    initConfig();
+}
+
+void MainWindow::updateThermicCameraConfig(){
+    qInfo() << __func__;
+    int gfid_,gsk_,tint_;
+    int tmp_gfid = ui->spinBox_gfid->value();
+    int tmp_gsk = ui->spinBox_gsk->value();
+    int tmp_tint = ui->spinBox_tint->value();
+
+    //wip check if we are in editing mode
+    if(ui->tabWidget_temp_detail->currentIndex()==2) //2 is the index of the editing tab
+    {
+        gfid_=(tmp_gfid!=gfid) ? tmp_gfid : gfid;
+        gsk_=(tmp_gsk!=gsk) ? tmp_gsk : gsk;
+        tint_=(tmp_tint!=tint) ? tmp_tint : tint;
+    }
+    else
+    {
+        gfid_= gfid;
+        gsk_= gsk;
+        tint_= tint;
+    }
+    //wip set param /!\ only thermal
+
+}
+
+void MainWindow::initConfig()
+{
+    connect(ui->horizontalSlider_tint, SIGNAL(valueChanged(int)), ui->spinBox_tint, SLOT(setValue(int)));
+    connect(ui->horizontalSlider_tint, SIGNAL(sliderReleased()),this,SLOT(updateThermicCameraConfig()));
+    connect(ui->spinBox_tint, SIGNAL(valueChanged(int)), ui->horizontalSlider_tint, SLOT(setValue(int)));
+    connect(ui->spinBox_tint, SIGNAL(editingFinished()),this,SLOT(updateThermicCameraConfig()));
+    connect(ui->spinBox_gfid,SIGNAL(valueChanged(int)),this,SLOT(setGfidVoltValue(int)));
+    connect(ui->spinBox_gsk,SIGNAL(valueChanged(int)),this,SLOT(setGskVoltValue(int)));
+    connect(ui->buttonBox_config,SIGNAL(rejected()),this,SLOT(resetConfigData()));
+    connect(ui->buttonBox_config,SIGNAL(accepted()),this,SLOT(setConfigData()));
+    resetConfigData();
+    updateThermicCameraConfig();
+}
+
+void MainWindow::resetConfigData()
+{
+    ui->spinBox_gfid->setValue(gfid);
+    ui->spinBox_gsk->setValue(gsk);
+    ui->spinBox_tint->setValue(tint);
+    updateThermicCameraConfig();
+}
+
+void MainWindow::setConfigData()
+{
+    gfid = ui->spinBox_gfid->value();
+    gsk = ui->spinBox_gsk->value();
+    tint = ui->spinBox_tint->value();
+    updateThermicCameraConfig();
+    //wip set in a config file
+}
+
+void MainWindow::setGfidVoltValue(int i)
+{
+    double clc=0.8+i/4093.0*3.4;
+    ui->label_gfid_v->setText(QString::number(clc));
+    updateThermicCameraConfig();
+}
+
+void MainWindow::setGskVoltValue(int i)
+{
+    double clc=1+i/4093.0*3.6;
+    ui->label_gsk_v->setText(QString::number(clc));
+    updateThermicCameraConfig();
+}
+
+void MainWindow::updateCam()
+{
+    displayCam();
+    //wip add detection
+}
+
+void MainWindow::displayCam()
+{
+//    qInfo() << displayId;
+    switch (displayId) {
+    case 0:
+        stream0.open(0); //0 is the id of video device.0 if you have only one camera.
+
+
+        if (!stream0.isOpened()) { //check if video device has been initialised
+            qWarning() << "cannot open camera 0";
+        }
+        else
+        {
+            stream0.read(camera0Frame);
+            image0 = Mat2QImage(camera0Frame);
+            setImage(image0);
+        }
+        break;
+    case 1:
+        stream1.open(1);//1 is the id of video device.1 if you have only one camera.
+
+
+        if (!stream1.isOpened()) { //check if video device has been initialised
+            qWarning() << "cannot open camera 1";
+        }
+        else
+        {
+            stream1.read(camera1Frame);
+            image1 = Mat2QImage(camera1Frame);
+            setImage(image1);
+        }
+        break;
+    default:
+        qWarning() << "invalid id";
+        break;
+    }
+}
+
+void MainWindow::switchDisplay()
+{
+//    qInfo() << __func__;
+    if(displayId==0)
+    {
+        displayId=1;
+    }
+    else if(displayId==1)
+    {
+        displayId=0;
+    }
+    else
+    {
+        qWarning() << "unknown id";
+        displayId=0;
+    }
 }
 
 QImage MainWindow::Mat2QImage(Mat const& inMat)
 {
-//     Mat temp(src.cols,src.rows,src.type()); // make the same cv::Mat
-//     cvtColor(src, temp,CV_BGR2RGB); // cvtColor Makes a copt, that what i need
-//     QImage dest= QImage((uchar*) temp.data, temp.cols, temp.rows, temp.step, QImage::Format_RGB888);
-//     return dest;
 
     switch ( inMat.type() )
     {
@@ -168,7 +294,6 @@ QImage MainWindow::Mat2QImage(Mat const& inMat)
     return QImage();
 }
 
-
 void MainWindow::setImage(QImage image)
 {
 #if 1
@@ -200,8 +325,6 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
 
     return QMainWindow::eventFilter(target,event);
 }
-
-
 
 void MainWindow::onDoubleClicked()
 {
