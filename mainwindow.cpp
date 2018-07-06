@@ -15,8 +15,6 @@
 #include <QtWidgets>
 #include <QtNetwork>
 
-#if OPEN_CV
-#include <cv.h>
 #include <opencv2/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
@@ -25,7 +23,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/ocl.hpp>
 using namespace cv;
-#endif
+
 
 
 
@@ -81,29 +79,10 @@ MainWindow::MainWindow(QWidget *parent) :
     this->showFullScreen();
 
     //open cv
-#if OPEN_CV
-//    CvCapture *capture;
-//    IplImage *frame, *imgHSV;
-//    imgHSV = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U,3);
-//    capture = cvCaptureFromCAM(0);
-//    cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_WIDTH,160);
-//    cvSetCaptureProperty(capture,CV_CAP_PROP_FRAME_HEIGHT,120);
-//    if(!capture){
-//        qWarning() << "Capture failure";
-//    }
-//    frame = cvQueryFrame(capture);
-//    if(!frame)
-//    {
-//        qWarning() << "frame failure";
-//    }
-//    cvCvtColor(frame, imgHSV, CV_BGR2HSV_FULL);
-//    cvConvertImage(frame,frame,CV_CVTIMG_SWAP_RB);
-
-//    cvReleaseImage(&imgHSV);
-//    cvReleaseCapture(&capture);
-
-
-    VideoCapture stream1(0);   //0 is the id of video device.0 if you have only one camera.
+    qInfo() << "try video capture";
+    VideoCapture stream1;   //0 is the id of video device.0 if you have only one camera.
+    stream1.open(0);
+    qInfo() << "end init video capture";
 
     if (!stream1.isOpened()) { //check if video device has been initialised
         qWarning() << "cannot open camera";
@@ -113,12 +92,10 @@ MainWindow::MainWindow(QWidget *parent) :
     image = Mat2QImage(cameraFrame);
 
     setImage(image);
-#endif
     //test
     //createAlert();
 }
 
-#if OPEN_CV
 QImage MainWindow::Mat2QImage(Mat const& inMat)
 {
 //     Mat temp(src.cols,src.rows,src.type()); // make the same cv::Mat
@@ -191,7 +168,6 @@ QImage MainWindow::Mat2QImage(Mat const& inMat)
     return QImage();
 }
 
-#endif
 
 void MainWindow::setImage(QImage image)
 {
