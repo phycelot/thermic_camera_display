@@ -30,6 +30,9 @@
    </item>
    <item row="0" column="0" colspan="3">
     <widget class="QLineEdit" name="lineEdit_password">
+     <property name="echoMode">
+      <enum>QLineEdit::PasswordEchoOnEdit</enum>
+     </property>
      <property name="readOnly">
       <bool>true</bool>
      </property>

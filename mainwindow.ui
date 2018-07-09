@@ -167,7 +167,7 @@
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>-71</y>
+               <y>0</y>
                <width>130</width>
                <height>354</height>
               </rect>
@@ -464,7 +464,7 @@
         <item>
          <widget class="QToolButton" name="toolButton_settings">
           <property name="text">
-           <string>sett</string>
+           <string>&amp;sett</string>
           </property>
          </widget>
         </item>

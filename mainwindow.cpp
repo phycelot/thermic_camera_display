@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
     double fps=1.0;
     QTimer *timerCam = new QTimer(this);
     connect(timerCam, SIGNAL(timeout()), this, SLOT(updateCam()));
-    timerCam->start(1000/fps);
+    //timerCam->start(1000/fps);
 
     //connect
     QObject::connect(ui->pushButton_fullscreen,SIGNAL(clicked()),this,SLOT(setCameraFullScreen()));
@@ -94,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //test
     //createAlert();
-    settings();
+    //settings();
 
 }
 
