@@ -10,7 +10,7 @@ INCLUDEPATH += -I /usr/include/opencv2 -Wall
 
 LIBS += -L/usr/lib -l:libopencv_core.so.3.1.0 -l:libopencv_videoio.so.3.1.0 -l:libopencv_imgproc.so.3.1.0 -l:libopencv_highgui.so.3.1.0
 LIBS += -L/usr/lib -l:libopencv_core.so.4.0.0 -l:libopencv_videoio.so.4.0.0 -l:libopencv_imgproc.so.4.0.0 -l:libopencv_highgui.so.4.0.0
-LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui
+LIBS += -L/usr/local/lib -lopencv_core -lopencv_videoio -lopencv_imgcodecs -lopencv_highgui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = thermic_camera_display
@@ -25,17 +25,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    firstrun.cpp
+    firstrun.cpp \
+    logindialog.cpp
 
 HEADERS += \
         mainwindow.h \
-    firstrun.h
+    firstrun.h \
+    logindialog.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    logindialog.ui

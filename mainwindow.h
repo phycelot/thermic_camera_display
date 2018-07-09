@@ -56,12 +56,15 @@ public slots:
     void onDoubleClicked();
     void switchDisplay();
     void updateCam();
+    void takePic();
     void setGfidVoltValue(int i);
     void setGskVoltValue(int i);
     void resetConfigData();
     void setConfigData();
     void updateThermicCameraConfig();
     void updateThermicCameraConfig(int i);
+    void settings();
+    void settingsLoginAccepted(QString& token);
 
 private:
     Ui::MainWindow *ui;

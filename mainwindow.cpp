@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "firstrun.h"
+#include "logindialog.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,8 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(doubleClicked()),SLOT(onDoubleClicked()));
     label_camera->setText("emplacement camera");
     label_camera->setStyleSheet("QLabel { background-color: rgb(255, 224, 179);}");
-    QSize s(240,320);
-    label_camera->resize(s);
+//    label_camera->setFixedSize(QSize(320,240));
 
     //initialisation for a fist run
     firstRun::run(); // test if it's the fist time, if not continue, else configuration popup pop
@@ -60,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //connect
     QObject::connect(ui->pushButton_fullscreen,SIGNAL(clicked()),this,SLOT(setCameraFullScreen()));
     QObject::connect(ui->pushButton_switch_camera_mode,SIGNAL(clicked()),this,SLOT(switchDisplay()));
+    QObject::connect(ui->toolButton_settings,SIGNAL(clicked()),this,SLOT(settings()));
 
     //initialisation alert timer
     alertTimer = new QTimer(this);
@@ -88,12 +89,33 @@ MainWindow::MainWindow(QWidget *parent) :
     displayCam();
     displayId=0;
 
-    //test
-    //createAlert();
-
     //init config
     initConfig();
+
+    //test
+    //createAlert();
+    settings();
+
 }
+
+void MainWindow::settings()
+{
+    qInfo() << __func__;
+    LoginDialog* log= new LoginDialog();
+    //add accept slot
+    connect( log,
+    SIGNAL (acceptLogin(QString&)),
+    this,
+    SLOT (settingsLoginAccepted(QString&)));
+    log->exec();
+}
+
+void MainWindow::settingsLoginAccepted(QString& token)
+{
+    qInfo() << __func__;
+    qInfo() << token;
+}
+
 void MainWindow::updateThermicCameraConfig(int i)
 {
     qDebug() << i;
@@ -230,8 +252,35 @@ void MainWindow::setGskVoltValue(int i)
 
 void MainWindow::updateCam()
 {
+    takePic();
     displayCam();
     //wip add detection
+}
+
+void MainWindow::takePic()
+{
+    stream0.open(0); //0 is the id of video device.0 if you have only one camera.
+
+
+    if (!stream0.isOpened()) { //check if video device has been initialised
+        qWarning() << "cannot open camera 0";
+    }
+    else
+    {
+        stream0.read(camera0Frame);
+        image0 = Mat2QImage(camera0Frame);
+    }
+    stream1.open(1);//1 is the id of video device.1 if you have only one camera.
+
+
+    if (!stream1.isOpened()) { //check if video device has been initialised
+        qWarning() << "cannot open camera 1";
+    }
+    else
+    {
+        stream1.read(camera1Frame);
+        image1 = Mat2QImage(camera1Frame);
+    }
 }
 
 void MainWindow::displayCam()
@@ -239,32 +288,10 @@ void MainWindow::displayCam()
 //    qInfo() << displayId;
     switch (displayId) {
     case 0:
-        stream0.open(0); //0 is the id of video device.0 if you have only one camera.
-
-
-        if (!stream0.isOpened()) { //check if video device has been initialised
-            qWarning() << "cannot open camera 0";
-        }
-        else
-        {
-            stream0.read(camera0Frame);
-            image0 = Mat2QImage(camera0Frame);
-            setImage(image0);
-        }
+        setImage(image0);
         break;
     case 1:
-        stream1.open(1);//1 is the id of video device.1 if you have only one camera.
-
-
-        if (!stream1.isOpened()) { //check if video device has been initialised
-            qWarning() << "cannot open camera 1";
-        }
-        else
-        {
-            stream1.read(camera1Frame);
-            image1 = Mat2QImage(camera1Frame);
-            setImage(image1);
-        }
+        setImage(image1);
         break;
     default:
         qWarning() << "invalid id";
@@ -288,6 +315,7 @@ void MainWindow::switchDisplay()
         qWarning() << "unknown id";
         displayId=0;
     }
+    updateCam();
 }
 
 QImage MainWindow::Mat2QImage(Mat const& inMat)
@@ -360,13 +388,17 @@ QImage MainWindow::Mat2QImage(Mat const& inMat)
 
 void MainWindow::setImage(QImage image)
 {
-#if 1
-    int tempWidth = label_camera->geometry().width();
-    int tempHeight = label_camera->geometry().height();
-#else
-    int tempWidth = 320;
-    int tempHeight = 240;
-#endif
+    int tempWidth,tempHeight;
+    if(isMaximized)
+    {
+        tempWidth = label_camera->geometry().width();
+        tempHeight = label_camera->geometry().height();
+    }
+    else
+    {
+        tempWidth = 320;
+        tempHeight = 240;
+    }
     QPixmap pix = QPixmap::fromImage(image.scaled(tempWidth, tempHeight));
     label_camera->setPixmap(pix);
 }
@@ -410,6 +442,7 @@ void MainWindow::onDoubleClicked()
         label_camera->show();
 
     }
+    displayCam();
 
 }
 
