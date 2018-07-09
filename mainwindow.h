@@ -42,6 +42,12 @@ public:
     double tint=128;// 1 - 147
     double gfid=2048;// 0 -4095 //0.8V - 3.4V
     void initConfig();
+    int gfid_=gsk;
+    int gsk_=gsk;
+    int tint_=tint;
+    void setGfid(int i);
+    void setGsk(int i);
+    void setTint(int i);
 
 public slots:
     void update();
@@ -55,6 +61,7 @@ public slots:
     void resetConfigData();
     void setConfigData();
     void updateThermicCameraConfig();
+    void updateThermicCameraConfig(int i);
 
 private:
     Ui::MainWindow *ui;

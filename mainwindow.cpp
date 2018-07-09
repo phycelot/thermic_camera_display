@@ -94,10 +94,14 @@ MainWindow::MainWindow(QWidget *parent) :
     //init config
     initConfig();
 }
+void MainWindow::updateThermicCameraConfig(int i)
+{
+    qDebug() << i;
+    emit updateThermicCameraConfig();
+}
 
 void MainWindow::updateThermicCameraConfig(){
     qInfo() << __func__;
-    int gfid_,gsk_,tint_;
     int tmp_gfid = ui->spinBox_gfid->value();
     int tmp_gsk = ui->spinBox_gsk->value();
     int tmp_tint = ui->spinBox_tint->value();
@@ -105,28 +109,88 @@ void MainWindow::updateThermicCameraConfig(){
     //wip check if we are in editing mode
     if(ui->tabWidget_temp_detail->currentIndex()==2) //2 is the index of the editing tab
     {
-        gfid_=(tmp_gfid!=gfid) ? tmp_gfid : gfid;
-        gsk_=(tmp_gsk!=gsk) ? tmp_gsk : gsk;
-        tint_=(tmp_tint!=tint) ? tmp_tint : tint;
+        if(gfid_!= tmp_gfid)
+        {
+            gfid_= tmp_gfid;
+            setGfid(gfid_);
+        }
+        if(gsk_!= tmp_gsk)
+        {
+            gsk_= tmp_gsk;
+            setGsk(gsk_);
+        }
+        if(tint_!= tmp_tint)
+        {
+            tint_= tmp_tint;
+            setTint(tint_);
+        }
     }
     else
     {
-        gfid_= gfid;
-        gsk_= gsk;
-        tint_= tint;
+        if(gfid_!= gfid)
+        {
+            gfid_= gfid;
+            setGfid(gfid_);
+        }
+        if(gsk_!= gsk)
+        {
+            gsk_= gsk;
+            setGsk(gsk_);
+        }
+        if(tint_!= tint)
+        {
+            tint_= tint;
+            setTint(tint_);
+        }
     }
-    //wip set param /!\ only thermal
+}
 
+void MainWindow::setGfid(int i) // 0 - 4095
+{
+    if (0<=i && i<=4095)
+    {
+        //do smth //wip set param /!\ only thermal
+    }
+    else
+    {
+        qCritical() << "gfid not on the right interval";
+    }
+}
+
+void MainWindow::setGsk(int i) //0 - 4095
+{
+    if (0<=i && i<=4095)
+    {
+        //do smth //wip set param /!\ only thermal
+    }
+    else
+    {
+        qCritical() << "gsk not on the right interval";
+    }
+}
+
+void MainWindow::setTint(int i) // 1 - 147
+{
+    if (1<=i && i<=147)
+    {
+        //do smth //wip set param /!\ only thermal
+    }
+    else
+    {
+        qCritical() << "tint not on the right interval";
+    }
 }
 
 void MainWindow::initConfig()
 {
     connect(ui->horizontalSlider_tint, SIGNAL(valueChanged(int)), ui->spinBox_tint, SLOT(setValue(int)));
-    connect(ui->horizontalSlider_tint, SIGNAL(sliderReleased()),this,SLOT(updateThermicCameraConfig()));
     connect(ui->spinBox_tint, SIGNAL(valueChanged(int)), ui->horizontalSlider_tint, SLOT(setValue(int)));
-    connect(ui->spinBox_tint, SIGNAL(editingFinished()),this,SLOT(updateThermicCameraConfig()));
     connect(ui->spinBox_gfid,SIGNAL(valueChanged(int)),this,SLOT(setGfidVoltValue(int)));
     connect(ui->spinBox_gsk,SIGNAL(valueChanged(int)),this,SLOT(setGskVoltValue(int)));
+    connect(ui->horizontalSlider_tint, SIGNAL(valueChanged(int)),this, SLOT(updateThermicCameraConfig(int)));
+    connect(ui->spinBox_tint, SIGNAL(valueChanged(int)), this, SLOT(updateThermicCameraConfig(int)));
+    connect(ui->spinBox_gfid,SIGNAL(valueChanged(int)),this, SLOT(updateThermicCameraConfig(int)));
+    connect(ui->spinBox_gsk,SIGNAL(valueChanged(int)),this, SLOT(updateThermicCameraConfig(int)));
     connect(ui->buttonBox_config,SIGNAL(rejected()),this,SLOT(resetConfigData()));
     connect(ui->buttonBox_config,SIGNAL(accepted()),this,SLOT(setConfigData()));
     resetConfigData();
