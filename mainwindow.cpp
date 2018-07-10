@@ -40,7 +40,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(doubleClicked()),SLOT(onDoubleClicked()));
     label_camera->setText("emplacement camera");
     label_camera->setStyleSheet("QLabel { background-color: rgb(255, 224, 179);}");
-//    label_camera->setFixedSize(QSize(320,240));
 
     //initialisation for a fist run
     firstRun::run(); // test if it's the fist time, if not continue, else configuration popup pop
@@ -55,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     double fps=1.0;
     QTimer *timerCam = new QTimer(this);
     connect(timerCam, SIGNAL(timeout()), this, SLOT(updateCam()));
-    //timerCam->start(1000/fps);
+    timerCam->start(1000/fps);
 
     //connect
     QObject::connect(ui->pushButton_fullscreen,SIGNAL(clicked()),this,SLOT(setCameraFullScreen()));
@@ -91,6 +90,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //init config
     initConfig();
+    hideConfig();
+
+
 
     //test
     //createAlert();
@@ -101,19 +103,45 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::settings()
 {
     qInfo() << __func__;
-    LoginDialog* log= new LoginDialog();
-    //add accept slot
-    connect( log,
-    SIGNAL (acceptLogin(QString&)),
-    this,
-    SLOT (settingsLoginAccepted(QString&)));
-    log->exec();
+    if(!ui->tab_config->isEnabled())
+    {
+        LoginDialog* log= new LoginDialog();
+        //add accept slot
+        connect( log,
+        SIGNAL (acceptLogin(QString&)),
+        this,
+        SLOT (settingsLoginAccepted(QString&)));
+        log->exec();
+    }
+    else
+    {
+        hideConfig();
+    }
 }
 
 void MainWindow::settingsLoginAccepted(QString& token)
 {
+    QMessageBox msgBox;
+    msgBox.showFullScreen();
+    msgBox.setFixedSize(480,320);
+    msgBox.setText("Login Accepted, You can change paramaters during 10 minutes, to quit before the 10 minutes please click on 'sett' button");
+    msgBox.exec();
+    showConfig();
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(hideConfig()));
+    timer->start(3600000);
     qInfo() << __func__;
     qInfo() << token;
+}
+
+void MainWindow::hideConfig(){
+    ui->tab_config->setEnabled(false);
+    ui->tabWidget_temp_detail->setCurrentIndex(0);//start index
+}
+
+void MainWindow::showConfig(){
+    ui->tab_config->setEnabled(true);
+    ui->tabWidget_temp_detail->setCurrentIndex(2);//config index
 }
 
 void MainWindow::updateThermicCameraConfig(int i)

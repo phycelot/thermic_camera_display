@@ -65,6 +65,8 @@ public slots:
     void updateThermicCameraConfig(int i);
     void settings();
     void settingsLoginAccepted(QString& token);
+    void hideConfig();
+    void showConfig();
 
 private:
     Ui::MainWindow *ui;
